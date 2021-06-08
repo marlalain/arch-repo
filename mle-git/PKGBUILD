@@ -1,0 +1,39 @@
+# Maintainer: Paulo Elienay <elienay.albuquerque (at) gmail.com>
+
+pkgname=mle-git
+pkgver=git
+pkgrel=1
+pkgdesc='Flexible terminal-based text editor'
+arch=(x86_64) # FIXME
+url='https://github.com/adsr/mle'
+license=(Apache)
+depends=(pcre termbox lua)
+makedepends=(git uthash)
+source=("${pkgname}::git+${url}")
+sha512sums=(SKIP)
+
+prepare() {
+    cd "${pkgname}"
+
+    # from https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=mle-git
+    # The source code uses <lua5.3/lua.h>; and the Arch Linux "lua" package
+	# places the headers directly under /usr/include, so let's just use a
+	# symlink to provide the headers at the expected include location.
+	ln -snf /usr/include lua5.3
+}
+
+build() {
+      cd "${pkgname}"
+      make prefix=/usr
+}
+
+#check() {
+#    cd "${pkgname}"
+#    make test
+#}
+
+package() {
+    cd "${pkgname}"
+    make prefix=/usr DESTDIR="${pkgdir}" install
+    install -Dm644 mle.1 "${pkgdir}/usr/share/man/man1/mle.1"
+}
